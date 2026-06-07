@@ -515,7 +515,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 </div>
 </div>
 
+<!-- Meta Facebook SDK -->
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 <script>
+window.fbAsyncInit = function() {
+  FB.init({
+    appId: '1524223295814802',
+    cookie: true,
+    xfbml: true,
+    version: 'v18.0'
+  });
+};
+
 /* ── ADMIN USERS ── */
 const ADMINS = {
   'fatos@hasmedia.com': { pass:'HasMedia2025!', name:'Fatos T.', initials:'FT' },
@@ -571,10 +583,28 @@ function doSocialLogin(provider, name, initials, email) {
   }, 280);
 }
 function doFacebookLogin() {
-  doSocialLogin('facebook', 'Facebook User', 'FB', 'user@facebook.com');
+  FB.login(function(response) {
+    if (response.authResponse) {
+      FB.api('/me', {fields: 'name,email'}, function(me) {
+        const initials = me.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        doSocialLogin('facebook', me.name, initials, me.email || 'fb@hasmedia.com');
+      });
+    } else {
+      document.getElementById('login-error').textContent = 'Facebook login was cancelled.';
+    }
+  }, {scope: 'public_profile,email,pages_show_list,instagram_basic,instagram_manage_insights'});
 }
 function doInstagramLogin() {
-  doSocialLogin('instagram', 'Instagram User', 'IG', 'user@instagram.com');
+  FB.login(function(response) {
+    if (response.authResponse) {
+      FB.api('/me', {fields: 'name,email'}, function(me) {
+        const initials = me.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        doSocialLogin('instagram', me.name, initials, me.email || 'ig@hasmedia.com');
+      });
+    } else {
+      document.getElementById('login-error').textContent = 'Instagram login was cancelled.';
+    }
+  }, {scope: 'public_profile,email,instagram_basic,instagram_manage_insights,pages_show_list'});
 }
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');

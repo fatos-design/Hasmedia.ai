@@ -592,19 +592,19 @@ function doFacebookLogin() {
     } else {
       document.getElementById('login-error').textContent = 'Facebook login was cancelled.';
     }
-  }, {scope: 'public_profile,email'});
+  }, {scope: 'public_profile'});
 }
 function doInstagramLogin() {
   FB.login(function(response) {
     if (response.authResponse) {
-      FB.api('/me', {fields: 'name,email'}, function(me) {
+      FB.api('/me', {fields: 'name'}, function(me) {
         const initials = me.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-        doSocialLogin('instagram', me.name, initials, me.email || 'ig@hasmedia.com');
+        doSocialLogin('instagram', me.name, initials, 'ig@hasmedia.com');
       });
     } else {
       document.getElementById('login-error').textContent = 'Instagram login was cancelled.';
     }
-  }, {scope: 'public_profile,email'});
+  }, {scope: 'public_profile'});
 }
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');

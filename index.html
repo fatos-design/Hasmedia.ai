@@ -592,7 +592,7 @@ function doFacebookLogin() {
     } else {
       document.getElementById('login-error').textContent = 'Facebook login was cancelled.';
     }
-  }, {scope: 'public_profile,email,pages_show_list,instagram_basic,instagram_manage_insights'});
+  }, {scope: 'public_profile,email'});
 }
 function doInstagramLogin() {
   FB.login(function(response) {
@@ -604,7 +604,7 @@ function doInstagramLogin() {
     } else {
       document.getElementById('login-error').textContent = 'Instagram login was cancelled.';
     }
-  }, {scope: 'public_profile,email,instagram_basic,instagram_manage_insights,pages_show_list'});
+  }, {scope: 'public_profile,email'});
 }
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');

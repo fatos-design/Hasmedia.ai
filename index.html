@@ -609,28 +609,14 @@ function doSocialLogin(provider, name, initials, email) {
   }, 280);
 }
 function doFacebookLogin() {
-  FB.login(function(response) {
-    if (response.authResponse) {
-      FB.api('/me', {fields: 'name,email'}, function(me) {
-        const initials = me.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-        doSocialLogin('facebook', me.name, initials, me.email || 'fb@hasmedia.com');
-      });
-    } else {
-      document.getElementById('login-error').textContent = 'Facebook login was cancelled.';
-    }
-  }, {scope: 'public_profile'});
+  const err = document.getElementById('login-error');
+  err.style.color = 'rgba(255,255,255,0.4)';
+  err.textContent = 'Facebook login coming soon — pending Meta app review.';
 }
 function doInstagramLogin() {
-  FB.login(function(response) {
-    if (response.authResponse) {
-      FB.api('/me', {fields: 'name'}, function(me) {
-        const initials = me.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-        doSocialLogin('instagram', me.name, initials, 'ig@hasmedia.com');
-      });
-    } else {
-      document.getElementById('login-error').textContent = 'Instagram login was cancelled.';
-    }
-  }, {scope: 'public_profile'});
+  const err = document.getElementById('login-error');
+  err.style.color = 'rgba(255,255,255,0.4)';
+  err.textContent = 'Instagram login coming soon — pending Meta app review.';
 }
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');

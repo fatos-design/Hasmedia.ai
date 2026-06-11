@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HasMedia Intelligence</title>
+<title>HasMedia</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='8' cy='18' r='5' fill='%23E8521A'/%3E%3Ccircle cx='18' cy='18' r='5' fill='%23E03131'/%3E%3Ccircle cx='28' cy='18' r='5' fill='%231A7A4A'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -269,6 +270,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
     </div>
     <button class="login-btn" onclick="doLogin()">Sign in →</button>
     <div class="login-error" id="login-error"></div>
+    <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.28);margin-top:0.6rem;font-family:'DM Mono',monospace">First time? Enter your email to create a password.</div>
 
     <div style="display:flex;align-items:center;gap:10px;margin:1.25rem 0 1rem">
       <div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1)"></div>
@@ -287,6 +289,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
     </button>
 
     <div class="login-footer">hasmedia.ai · <a href="https://hasmedia.com" target="_blank" style="color:inherit;text-decoration:none;">hasmedia.com</a> · © 2025 HasMedia</div>
+    <div class="login-footer" style="margin-top:0.4rem">Created by Fatos Mekik</div>
   </div>
 </div>
 
@@ -326,6 +329,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-connect" onclick="addClientDemo()"><i class="ti ti-plus"></i>Add as demo client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CREATE / CHANGE PASSWORD MODAL ═══════ -->
+<div class="modal-overlay" id="pass-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title" id="cp-title">Create your password</div>
+      <button class="modal-close" onclick="closeChangePass()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p id="cp-intro" style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">Create a password for your account. It's saved only in this browser.</p>
+      <label style="display:block;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px">New password</label>
+      <input type="password" id="cp-new" class="step-input" placeholder="At least 6 characters" autocomplete="new-password">
+      <label style="display:block;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin:0.9rem 0 5px">Confirm password</label>
+      <input type="password" id="cp-confirm" class="step-input" placeholder="Repeat new password" autocomplete="new-password">
+      <div id="cp-error" style="font-size:12px;color:var(--orange);margin-top:0.6rem;min-height:16px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeChangePass()">Cancel</button>
+      <button class="btn-connect" onclick="saveNewPass()"><i class="ti ti-check"></i><span id="cp-save-label">Save password</span></button>
     </div>
   </div>
 </div>
@@ -398,7 +423,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
         <div class="sb-uname" id="sb-uname">Fatos T.</div>
         <div class="sb-uemail" id="sb-uemail">fatos@hasmedia.com</div>
       </div>
-      <i class="ti ti-logout sb-logout" onclick="doLogout()" title="Sign out"></i>
+      <i class="ti ti-key sb-logout" onclick="openChangePass()" title="Change password" style="margin-left:auto"></i>
+      <i class="ti ti-logout sb-logout" onclick="doLogout()" title="Sign out" style="margin-left:8px"></i>
     </div>
   </aside>
 
@@ -555,10 +581,11 @@ window.fbAsyncInit = function() {
 };
 
 /* ── ADMIN USERS ── */
+// No passwords here — each admin creates their own on first login (saved in their browser).
 const ADMINS = {
-  'fatos@hasmedia.com': { pass:'HasMedia2025!', name:'Fatos T.', initials:'FT' },
-  'onur@hasmedia.com':  { pass:'HasMedia2025!', name:'Onur',     initials:'ON' },
-  'okan@hasmedia.com':  { pass:'HasMedia2025!', name:'Okan',     initials:'OK' }
+  'fatos@hasmedia.com': { name:'Fatos T.', initials:'FT' },
+  'onur@hasmedia.com':  { name:'Onur',     initials:'ON' },
+  'okan@hasmedia.com':  { name:'Okan',     initials:'OK' }
 };
 
 /* ── CLIENTS ── */
@@ -571,19 +598,28 @@ let activeClient = 0;
 let activePage = 'analytics';
 
 /* ── LOGIN ── */
+let currentEmail = null;
+let passMode = 'change'; // 'create' = first-time setup from login, 'change' = while signed in
+function hasPassword(email) { return !!localStorage.getItem('hm_pw_' + email); }
+
 function doLogin() {
   const email = document.getElementById('li-email').value.trim().toLowerCase();
   const pass  = document.getElementById('li-pass').value;
   const err   = document.getElementById('login-error');
   const user  = ADMINS[email];
   if (!user) { err.textContent = 'Email not found. Use your @hasmedia.com address.'; return; }
-  if (user.pass !== pass) { err.textContent = 'Incorrect password.'; return; }
+  currentEmail = email;
+  // First time this admin signs in → have them create their own password.
+  if (!hasPassword(email)) { err.textContent = ''; openPassModal('create'); return; }
+  if (localStorage.getItem('hm_pw_' + email) !== pass) { err.textContent = 'Incorrect password.'; return; }
   err.textContent = '';
-  // Set user info in sidebar
+  enterApp(user, email);
+}
+
+function enterApp(user, email) {
   document.getElementById('sb-avatar-initials').textContent = user.initials;
   document.getElementById('sb-uname').textContent = user.name;
   document.getElementById('sb-uemail').textContent = email;
-  // Transition
   const ls = document.getElementById('login-screen');
   ls.style.animation = 'fadeOut 0.3s ease forwards';
   setTimeout(() => {
@@ -591,6 +627,37 @@ function doLogin() {
     document.getElementById('app-screen').classList.add('visible');
     initCharts();
   }, 280);
+}
+
+/* ── CREATE / CHANGE PASSWORD ── */
+function openPassModal(mode) {
+  if (!currentEmail) return;
+  passMode = mode;
+  document.getElementById('cp-title').textContent = mode === 'create' ? 'Create your password' : 'Change your password';
+  document.getElementById('cp-intro').innerHTML = (mode === 'create'
+    ? 'Welcome! Create a password for <strong>' + currentEmail + '</strong> to finish signing in.'
+    : 'Set a new password for <strong>' + currentEmail + '</strong>.') + ' It’s saved only in this browser.';
+  document.getElementById('cp-save-label').textContent = mode === 'create' ? 'Create & sign in' : 'Save password';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  document.getElementById('cp-error').textContent = '';
+  document.getElementById('pass-modal').classList.add('open');
+  setTimeout(() => document.getElementById('cp-new').focus(), 50);
+}
+function openChangePass() { openPassModal('change'); }
+function closeChangePass() {
+  document.getElementById('pass-modal').classList.remove('open');
+  if (passMode === 'create') { currentEmail = null; document.getElementById('li-pass').value = ''; }
+}
+function saveNewPass() {
+  const np = document.getElementById('cp-new').value;
+  const cf = document.getElementById('cp-confirm').value;
+  const err = document.getElementById('cp-error');
+  if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+  if (np !== cf) { err.textContent = 'Passwords do not match.'; return; }
+  localStorage.setItem('hm_pw_' + currentEmail, np);
+  document.getElementById('pass-modal').classList.remove('open');
+  if (passMode === 'create') enterApp(ADMINS[currentEmail], currentEmail);
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin();
@@ -698,6 +765,7 @@ function addClientDemo() {
   alert('✅ '+name+' added! Connect their Instagram account to start pulling real data.');
 }
 document.getElementById('add-modal').addEventListener('click', e => { if(e.target === document.getElementById('add-modal')) closeModal(); });
+document.getElementById('pass-modal').addEventListener('click', e => { if(e.target === document.getElementById('pass-modal')) closeChangePass(); });
 
 /* ── CHARTS ── */
 let chartsInit = false;

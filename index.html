@@ -320,11 +320,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           </button>
           <div style="font-size:10px;color:var(--text3);margin-top:8px;font-family:'DM Mono',monospace">Requires: Instagram Business or Creator account linked to a Facebook Page</div>
         </div>
-        <div class="step-block" style="background:var(--orange-bg);border:0.5px solid rgba(232,82,26,0.2)">
-          <div class="step-num" style="color:var(--orange-text)">⚠️ Meta App not configured yet</div>
-          <div class="step-title">You need a Meta Developer App first</div>
-          <div class="step-desc" style="color:#4A1B0C">The Instagram OAuth button above will work once you set up your Meta App. Click the setup guide below — it takes about 15 minutes.</div>
-          <span class="step-link" onclick="closeModal();openSetup()"><i class="ti ti-external-link" style="font-size:11px"></i> Open Meta App Setup Guide</span>
+        <div class="step-block" style="background:var(--green-bg);border:0.5px solid rgba(26,122,74,0.25)">
+          <div class="step-num" style="color:var(--green)">✓ Meta app connected</div>
+          <div class="step-title">Instagram connection is live</div>
+          <div class="step-desc" style="color:#0F5132">Click “Connect with Instagram” above to authorize a Business/Creator account. During Meta’s review period, this works for your own and tester accounts.</div>
         </div>
       </div>
     </div>
@@ -755,7 +754,7 @@ document.addEventListener('click', () => closeDropdown());
 function openModal() { document.getElementById('add-modal').classList.add('open'); closeDropdown(); }
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 function openSetup() { document.querySelectorAll('.ni').forEach(n => n.classList.remove('active')); document.querySelectorAll('.pg').forEach(p => p.classList.remove('active')); document.querySelectorAll('.ni').forEach(n => { if(n.textContent.includes('Meta')) n.classList.add('active'); }); document.getElementById('pg-setup-' + activeClient).classList.add('active'); document.getElementById('ptitle').textContent = 'Meta App Setup'; }
-function launchOAuth() { alert('OAuth flow will live at:\nhttps://hasmedia.ai/auth/instagram\n\nComplete Step 7 of the Meta App Setup first — your developer will wire this in.'); }
+function launchOAuth() { window.location.href = '/api/ig-login'; }
 function addClientDemo() {
   const name = document.getElementById('new-client-name').value.trim();
   const handle = document.getElementById('new-client-handle').value.trim();

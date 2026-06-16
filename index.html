@@ -254,6 +254,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 }
 
 /* ── ASK HASMEDIA ── */
+.ni-ask i{color:var(--orange)}
+.ni-ask:hover i{color:#F5915F}
 .ask-fab{position:fixed;bottom:22px;right:22px;z-index:400;background:var(--orange);color:#fff;border:none;border-radius:30px;padding:0.7rem 1.1rem;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(232,82,26,0.45);transition:transform 0.15s}
 .ask-fab:hover{transform:translateY(-2px)}
 .ask-fab i{font-size:16px}
@@ -434,6 +436,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
       </div>
     </div>
 
+    <div class="nsec">Assistant</div>
+    <div class="ni ni-ask" onclick="toggleAsk()"><i class="ti ti-sparkles"></i>Ask HasMedia</div>
     <div class="nsec">Analytics</div>
     <div class="ni active" onclick="sp('analytics',this)"><i class="ti ti-chart-bar"></i>Instagram Analytics</div>
     <div class="ni" onclick="sp('outliers',this)"><i class="ti ti-telescope"></i>Outlier Detector</div>

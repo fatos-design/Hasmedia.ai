@@ -252,6 +252,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
   .login-box{padding:1.75rem 1.25rem}
   .login-title{font-size:18px}
 }
+
+/* ── ASK HASMEDIA ── */
+.ask-fab{position:fixed;bottom:22px;right:22px;z-index:400;background:var(--orange);color:#fff;border:none;border-radius:30px;padding:0.7rem 1.1rem;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(232,82,26,0.45);transition:transform 0.15s}
+.ask-fab:hover{transform:translateY(-2px)}
+.ask-fab i{font-size:16px}
+.ask-panel{position:fixed;bottom:22px;right:22px;z-index:401;width:380px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 44px);background:#161614;border:0.5px solid rgba(255,255,255,0.14);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.65)}
+.ask-panel.open{display:flex;animation:fadeUp 0.2s ease both}
+.ask-head{padding:1rem 1.1rem;border-bottom:0.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between}
+.ask-title{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.ask-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.ask-d1{background:#F5B400}.ask-d2{background:#E03131}.ask-d3{background:#1A7A4A;margin-right:5px}
+.ask-close{width:26px;height:26px;border:none;background:rgba(255,255,255,0.06);border-radius:6px;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
+.ask-close:hover{background:rgba(255,255,255,0.12)}
+.ask-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px}
+.ask-msg{font-size:13px;line-height:1.6;padding:0.7rem 0.9rem;border-radius:12px;max-width:86%}
+.ask-bot{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);align-self:flex-start;border-bottom-left-radius:4px}
+.ask-user{background:var(--orange);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.ask-msg strong{color:#fff}.ask-msg .hi{color:#F5915F;font-weight:700}
+.ask-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 1rem 0.6rem}
+.ask-chip{background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);font-size:11px;padding:5px 9px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.ask-chip:hover{background:rgba(255,255,255,0.1)}
+.ask-input-row{display:flex;gap:8px;padding:0.8rem 1rem;border-top:0.5px solid rgba(255,255,255,0.08)}
+.ask-input{flex:1;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.6rem 0.8rem;font-size:13px;color:#fff;outline:none;font-family:'DM Sans',sans-serif}
+.ask-input::placeholder{color:rgba(255,255,255,0.3)}
+.ask-send{width:38px;background:var(--orange);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
 </style>
 </head>
 <body>
@@ -569,6 +594,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 </div>
 </div>
 
+<!-- ══ ASK HASMEDIA ══ -->
+<button class="ask-fab" onclick="toggleAsk()" title="Ask HasMedia"><i class="ti ti-sparkles"></i>Ask HasMedia</button>
+<div class="ask-panel" id="ask-panel">
+  <div class="ask-head">
+    <div class="ask-title"><span class="ask-dot ask-d1"></span><span class="ask-dot ask-d2"></span><span class="ask-dot ask-d3"></span>Ask HasMedia</div>
+    <button class="ask-close" onclick="toggleAsk()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="ask-body" id="ask-body">
+    <div class="ask-msg ask-bot">Hi! Ask me anything about <strong id="ask-client">this client</strong>'s account — followers, top videos, best posting times, or content ideas. 💡</div>
+  </div>
+  <div class="ask-chips">
+    <button class="ask-chip" onclick="askQ('How many followers do they have?')">How many followers?</button>
+    <button class="ask-chip" onclick="askQ('Which video performed best?')">Top video?</button>
+    <button class="ask-chip" onclick="askQ('Give me content ideas')">Content ideas</button>
+    <button class="ask-chip" onclick="askQ('Best time to post?')">Best time?</button>
+  </div>
+  <div class="ask-input-row">
+    <input id="ask-input" class="ask-input" placeholder="Ask about this account..." onkeydown="if(event.key==='Enter')sendAsk()">
+    <button class="ask-send" onclick="sendAsk()"><i class="ti ti-arrow-up"></i></button>
+  </div>
+</div>
+
 <!-- Meta Facebook SDK -->
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
@@ -598,6 +645,33 @@ const clients = [
 ];
 let activeClient = 0;
 let activePage = 'analytics';
+
+/* ── ASK HASMEDIA (smart assistant from dashboard data) ── */
+const clientData = {
+  0:{name:'The Panda Man',followers:'223K',avgViews:'142K avg reel views',saves:'6,800',growth:'+4.2%',topVideo:'\"The TRUE PURPOSE behind fasting\"',topViews:'380K',topMult:'2.8×',bestTime:'Mon/Wed/Fri 7\u20139am EST',niche:'fasting education',ideas:['\"Why fasting hits DIFFERENT for women over 40\"','\"The TRUTH about extended vs intermittent fasting\"','\"COMPLETE list of what actually breaks your fast\"']},
+  1:{name:'Apex Fitness',followers:'184K',avgViews:'2.4M total views',saves:'9,280',growth:'+18%',topVideo:'\"Morning Routine Breakdown\"',topViews:'847K',topMult:'3.2×',bestTime:'Tue\u2013Thu 6\u20138am EST',niche:'fitness',ideas:['\"I was terrified of the gym for 3 years \u2014 here\u2019s the 1 fix\"','\"Creatine for women \u2014 what no one tells you\"','\"Gym anxiety? Do THIS your first 5 minutes\"']},
+  2:{name:'Nova Skincare',followers:'92K',avgViews:'38K avg reach',saves:'3,100',growth:'+2.1%',topVideo:'(connect account for live data)',topViews:'\u2014',topMult:'\u2014',bestTime:'(connect account to see)',niche:'skincare',ideas:['\"The skincare order you\u2019re doing WRONG\"','\"$12 product that beats the $80 one\"','\"Morning vs night routine \u2014 what actually matters\"']}
+};
+function toggleAsk(){
+  const p=document.getElementById('ask-panel'),f=document.querySelector('.ask-fab');
+  const open=p.classList.toggle('open');
+  f.style.opacity=open?'0':'1';f.style.pointerEvents=open?'none':'auto';
+  if(open){document.getElementById('ask-client').textContent=clients[activeClient].name;setTimeout(()=>document.getElementById('ask-input').focus(),60);}
+}
+function askPush(text,who){const b=document.getElementById('ask-body');const d=document.createElement('div');d.className='ask-msg ask-'+who;d.innerHTML=text;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function askQ(q){document.getElementById('ask-input').value=q;sendAsk();}
+function sendAsk(){const i=document.getElementById('ask-input');const q=i.value.trim();if(!q)return;askPush(q.replace(/[<>]/g,''),'user');i.value='';setTimeout(()=>askPush(askAnswer(q),'bot'),380);}
+function askAnswer(q){
+  const d=clientData[activeClient]||clientData[0];const t=q.toLowerCase();
+  if(/follower|how many.*follow|audience size/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.followers+' followers</span> \u2014 up '+d.growth+' this month. 📈';
+  if(/top|best|most.*(view|seen|watch)|which video|highest|performed/.test(t)) return 'The top performer is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+' views</span> ('+d.topMult+' the account average). 🔥';
+  if(/save|saved/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.saves+' saves</span> recently \u2014 a strong sign people find the content reference-worthy. 🔖';
+  if(/idea|content|post about|what should|brief|create|video/.test(t)) return 'Here are 3 ideas tuned to '+d.niche+':<br>\u2022 '+d.ideas.join('<br>\u2022 ')+'<br><br>Want full briefs? Open <strong>Video Ideation</strong> in the sidebar. 💡';
+  if(/best time|when.*post|posting time|schedule/.test(t)) return 'Best posting window for <strong>'+d.name+'</strong>: <span class=\"hi\">'+d.bestTime+'</span>. ⏰';
+  if(/view|reach|impression|engagement/.test(t)) return '<strong>'+d.name+'</strong> is averaging <span class=\"hi\">'+d.avgViews+'</span> \u2014 trending up '+d.growth+'.';
+  if(/^(hi|hey|hello|help|what can|yo)\b/.test(t)) return 'I can tell you about <strong>'+d.name+'</strong>: followers, top videos, saves, best posting times, and content ideas. Tap a chip below 👇';
+  return 'For <strong>'+d.name+'</strong> I can answer: followers, top video, saves, best posting time, and content ideas. Try one of those or tap a chip below. 👇';
+}
 
 /* ── FIREBASE AUTH ── */
 const firebaseConfig = {

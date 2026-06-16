@@ -13,13 +13,14 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --black:#0A0A09;--sidebar:#141413;
-  --bg:#F2F0EB;--bg2:#E8E5DE;--bg3:#FAFAF8;
-  --text:#0A0A09;--text2:#5A5A56;--text3:#9A9A94;
-  --border:rgba(10,10,9,0.1);--border2:rgba(10,10,9,0.18);
-  --orange:#E8521A;--orange-bg:#FDF0EB;--orange-text:#B03E10;
-  --green:#1A7A4A;--green-bg:#E8F5EE;
-  --blue:#1A4FA8;--blue-bg:#E8F0FD;
+  --black:#0A0A09;--sidebar:#0F0F0E;
+  --bg:#0A0A09;--bg2:#1E1E1B;--bg3:#161614;
+  --text:#F2F0EB;--text2:rgba(255,255,255,0.58);--text3:rgba(255,255,255,0.34);
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
+  --orange:#E8521A;--orange-bg:rgba(232,82,26,0.14);--orange-text:#F5915F;
+  --green:#1A7A4A;--green-bg:rgba(26,122,74,0.16);
+  --red:#E03131;--red-bg:rgba(224,49,49,0.16);
+  --blue:#E03131;--blue-bg:rgba(224,49,49,0.14);
   --radius:10px;--radius-sm:6px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
@@ -118,7 +119,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .pg{display:none}.pg.active{display:block}
 
 /* ── AI SUMMARY ── */
-.ais{background:var(--orange-bg);border:0.5px solid rgba(232,82,26,0.22);border-radius:var(--radius-sm);padding:0.8rem 0.95rem;margin-bottom:1.1rem;font-size:12px;line-height:1.65;color:#4A1B0C}
+.ais{background:var(--orange-bg);border:0.5px solid rgba(232,82,26,0.3);border-radius:var(--radius-sm);padding:0.8rem 0.95rem;margin-bottom:1.1rem;font-size:12px;line-height:1.65;color:rgba(255,255,255,0.78)}
 .aiicon{display:inline-block;font-size:9px;font-family:'DM Mono',monospace;background:var(--orange);color:#fff;padding:1px 5px;border-radius:3px;margin-right:5px;vertical-align:2px;letter-spacing:0.05em}
 .ai-hi{color:var(--orange-text);font-weight:600}
 
@@ -128,7 +129,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .ml{font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
 .mv{font-size:21px;font-weight:600;margin:4px 0 3px;letter-spacing:-0.02em}
 .mch{font-size:10px;display:flex;align-items:center;gap:3px}
-.up{color:var(--green)}.dn{color:#A32D2D}
+.up{color:#4ADE80}.dn{color:#FF6B6B}
 
 /* ── POSTS ── */
 .slbl{font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.09em;color:var(--text3);margin-bottom:0.55rem}
@@ -141,7 +142,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .pstat{text-align:right;font-size:13px;font-weight:500;font-family:'DM Mono',monospace}
 .pstatl{font-size:9px;color:var(--text3);text-align:right}
 .fl{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;font-family:'DM Mono',monospace}
-.fv{background:#E8F5EE;color:#1A7A4A}.fr{background:#FDF5E8;color:#9A5F0A}.fd{background:#FCEBEB;color:#A32D2D}
+.fv{background:var(--green-bg);color:#4ADE80}.fr{background:var(--orange-bg);color:#F5915F}.fd{background:var(--red-bg);color:#FF6B6B}
 
 /* ── CARDS ── */
 .tcol{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.1rem}
@@ -157,7 +158,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .mult{font-family:'DM Mono',monospace;font-size:13px;color:var(--green);font-weight:500}
 .wg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
 .wi{background:var(--green-bg);border-radius:4px;padding:5px 7px;font-size:10.5px;color:var(--green)}
-.wi strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#0F6E56;margin-bottom:1px;font-family:'DM Mono',monospace}
+.wi strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#5FCB8E;margin-bottom:1px;font-family:'DM Mono',monospace}
 
 /* ── TRENDS ── */
 .ti2{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:0.5px solid var(--border);font-size:11px;gap:10px}
@@ -178,7 +179,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .gen-btn:hover{background:var(--bg2)}
 
 /* ── CONNECT BANNER ── */
-.connect-banner{background:var(--blue-bg);border:0.5px solid rgba(26,79,168,0.25);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:1.1rem;font-size:12px;color:#0C3070;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.connect-banner{background:var(--blue-bg);border:0.5px solid rgba(224,49,49,0.30);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:1.1rem;font-size:12px;color:rgba(255,255,255,0.72);display:flex;align-items:center;justify-content:space-between;gap:10px}
 .connect-btn{background:var(--blue);color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:5px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:opacity 0.15s}
 .connect-btn:hover{opacity:0.85}
 
@@ -395,7 +396,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <i class="ti ti-check cd-check" id="check-1" style="opacity:0"></i>
         </div>
         <div class="cd-item" onclick="switchClient(2,event)">
-          <div class="cd-avatar" style="background:rgba(26,79,168,0.2);color:#1A4FA8">NS</div>
+          <div class="cd-avatar" style="background:rgba(224,49,49,0.2);color:#E03131">NS</div>
           <div class="cd-info"><div class="cd-cname">Nova Skincare</div><div class="cd-chandle">@novaskin · 92K</div></div>
           <span class="cd-status cd-status-pending">Pending</span>
           <i class="ti ti-check cd-check" id="check-2" style="opacity:0"></i>
@@ -469,7 +470,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <div class="prow"><div class="pthumb">📅</div><div><div class="ptitle2">HOW FREQUENTLY can you fast?</div><div class="psub">Reel · fasting frequency</div></div><span class="fl fd">⚠️ Declining</span><div><div class="pstat">61K</div><div class="pstatl">est. views</div></div></div>
         </div>
         <div class="tcol">
-          <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Content type breakdown</div><div style="position:relative;height:150px"><canvas id="ec-0" role="img" aria-label="Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%">Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%</canvas></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Fasting Ed 52%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Panda Diet 24%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A4FA8;display:inline-block"></span>Mindset 14%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Lifestyle 10%</span></div></div>
+          <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Content type breakdown</div><div style="position:relative;height:150px"><canvas id="ec-0" role="img" aria-label="Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%">Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%</canvas></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Fasting Ed 52%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Panda Diet 24%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E03131;display:inline-block"></span>Mindset 14%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Lifestyle 10%</span></div></div>
           <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Est. weekly view trend</div><div style="position:relative;height:150px"><canvas id="vc-0" role="img" aria-label="Weekly views trend">Wk1 890K, Wk2 1.1M, Wk3 980K, Wk4 1.4M</canvas></div></div>
         </div>
       </div>
@@ -482,7 +483,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
         <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Replicable formulas for Kyle</div>
           <div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10"><i class="ti ti-alert-triangle" style="font-size:11px"></i></div><div style="font-size:12px"><strong>"Stop doing X" / "You're doing X wrong"</strong> — mistake-format reels get 3.1× avg for this account</div></div>
           <div class="irow"><div class="iicon" style="background:#E8F5EE;color:#1A7A4A"><i class="ti ti-letter-case" style="font-size:11px"></i></div><div style="font-size:12px"><strong>ALL CAPS trigger word in title</strong> (TRUE, REAL, STOP, NEVER) lifts click-through significantly</div></div>
-          <div class="irow"><div class="iicon" style="background:#E8F0FD;color:#1A4FA8"><i class="ti ti-question-mark" style="font-size:11px"></i></div><div style="font-size:12px"><strong>Philosophy/mindset questions</strong> — "What is the end game?" style outperforms basic how-to content</div></div>
+          <div class="irow"><div class="iicon" style="background:#E8F0FD;color:#E03131"><i class="ti ti-question-mark" style="font-size:11px"></i></div><div style="font-size:12px"><strong>Philosophy/mindset questions</strong> — "What is the end game?" style outperforms basic how-to content</div></div>
         </div>
       </div>
 
@@ -511,7 +512,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">01</div><div style="font-size:12px"><strong>Fasting for women over 40</strong> — surging searches, zero authoritative reels from Kyle or competitors <span class="tag">Gap</span></div></div>
           <div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">02</div><div style="font-size:12px"><strong>Extended vs intermittent fasting — definitive take</strong> — no clear winner, Kyle's credibility owns this <span class="tag">Gap</span></div></div>
           <div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">03</div><div style="font-size:12px"><strong>Complete "what breaks a fast" list</strong> — most existing content is wrong or incomplete, huge save-bait <span class="tag">Gap</span></div></div>
-          <div class="irow"><div class="iicon" style="background:#E8F0FD;color:#1A4FA8;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">04</div><div style="font-size:12px"><strong>The Panda Diet explained in 60s</strong> — his brand is underexplained on short-form vs competitors' generic fasting content <span class="tag">Angle</span></div></div>
+          <div class="irow"><div class="iicon" style="background:#E8F0FD;color:#E03131;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">04</div><div style="font-size:12px"><strong>The Panda Diet explained in 60s</strong> — his brand is underexplained on short-form vs competitors' generic fasting content <span class="tag">Angle</span></div></div>
         </div>
       </div>
 
@@ -549,7 +550,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
         <div class="mrow"><div class="mc"><div class="ml">Total views</div><div class="mv">2.4M</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+18%</div></div><div class="mc"><div class="ml">Avg reach</div><div class="mv">61K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+7%</div></div><div class="mc"><div class="ml">Saves</div><div class="mv">9,280</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+41%</div></div><div class="mc"><div class="ml">Comments</div><div class="mv">1,840</div><div class="mch dn"><i class="ti ti-arrow-down" style="font-size:10px"></i>−4%</div></div></div>
         <div class="slbl">Recent posts</div>
         <div class="plist"><div class="prow"><div class="pthumb">🏋️</div><div><div class="ptitle2">Morning Routine Breakdown</div><div class="psub">Reel · Jun 3 · 0:12</div></div><span class="fl fv">📈 Viral</span><div><div class="pstat">847K</div><div class="pstatl">views</div></div></div><div class="prow"><div class="pthumb">🥗</div><div><div class="ptitle2">High Protein Lunch in 5 Min</div><div class="psub">Reel · Jun 1 · 0:22</div></div><span class="fl fr">🔥 Rising</span><div><div class="pstat">312K</div><div class="pstatl">views</div></div></div><div class="prow"><div class="pthumb">📸</div><div><div class="ptitle2">Office Gym Setup Tour</div><div class="psub">Carousel · May 29</div></div><span class="fl fr">🔥 Rising</span><div><div class="pstat">198K</div><div class="pstatl">reach</div></div></div><div class="prow"><div class="pthumb">💬</div><div><div class="ptitle2">Motivation Monday Quote</div><div class="psub">Image · May 27</div></div><span class="fl fd">⚠️ Declining</span><div><div class="pstat">28K</div><div class="pstatl">reach</div></div></div></div>
-        <div class="tcol"><div class="card"><div class="slbl" style="margin-bottom:0.7rem">Engagement breakdown</div><div style="position:relative;height:150px"><canvas id="ec-1" role="img" aria-label="Engagement breakdown">Views 58%, Saves 22%, Shares 12%, Comments 8%</canvas></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Views 58%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Saves 22%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A4FA8;display:inline-block"></span>Shares 12%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Comments 8%</span></div></div><div class="card"><div class="slbl" style="margin-bottom:0.7rem">Weekly view trend</div><div style="position:relative;height:150px"><canvas id="vc-1" role="img" aria-label="Weekly views">W1 1.2M, W2 1.5M, W3 1.1M, W4 2.4M</canvas></div></div></div>
+        <div class="tcol"><div class="card"><div class="slbl" style="margin-bottom:0.7rem">Engagement breakdown</div><div style="position:relative;height:150px"><canvas id="ec-1" role="img" aria-label="Engagement breakdown">Views 58%, Saves 22%, Shares 12%, Comments 8%</canvas></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Views 58%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Saves 22%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E03131;display:inline-block"></span>Shares 12%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Comments 8%</span></div></div><div class="card"><div class="slbl" style="margin-bottom:0.7rem">Weekly view trend</div><div style="position:relative;height:150px"><canvas id="vc-1" role="img" aria-label="Weekly views">W1 1.2M, W2 1.5M, W3 1.1M, W4 2.4M</canvas></div></div></div>
       </div>
       <div class="pg" id="pg-outliers-1"><div class="ais"><span class="aiicon">AI</span><strong class="ai-hi">Pattern detected:</strong> Reels <strong class="ai-hi">under 15s</strong> with a <strong class="ai-hi">question hook</strong> average 3.1× baseline.</div><div class="oc"><div class="oh"><div class="ot">🏋️ "Morning Routine Breakdown"</div><span class="mult">3.2× avg</span></div><div style="font-size:11px;color:var(--text2)">847K views · 2.1K saves</div><div class="wg"><div class="wi"><strong>Hook</strong>Question lead</div><div class="wi"><strong>Length</strong>12s sweet spot</div><div class="wi"><strong>Time</strong>Tue 6:42am</div><div class="wi"><strong>Caption</strong>Benefit-first</div></div></div><div class="card"><div class="irow"><div class="iicon" style="background:#E8F5EE;color:#1A7A4A"><i class="ti ti-clock" style="font-size:11px"></i></div><div style="font-size:12px"><strong>Under 15s</strong> gets 3.1× avg views</div></div><div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10"><i class="ti ti-question-mark" style="font-size:11px"></i></div><div style="font-size:12px"><strong>Question hooks</strong> lift saves 54%</div></div></div></div>
       <div class="pg" id="pg-trends-1"><div class="ais"><span class="aiicon">AI</span><strong class="ai-hi">Gap found:</strong> "Gym anxiety for beginners" trending 4.2× — zero competitor posts.</div><div class="card"><div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">01</div><div style="font-size:12px"><strong>Gym anxiety</strong> — zero competitor posts <span class="tag">Gap</span></div></div><div class="irow"><div class="iicon" style="background:#FDF0EB;color:#B03E10;font-family:'DM Mono',monospace;font-size:9px;font-weight:500">02</div><div style="font-size:12px"><strong>Creatine for women</strong> — rising 3× in 2 weeks <span class="tag">Gap</span></div></div></div></div>
@@ -593,7 +594,7 @@ const ADMINS = {
 const clients = [
   { name:'The Panda Man', handle:'@thepandamanofficial · 223K', initials:'PM', color:'#2E9E55', bg:'rgba(46,158,85,0.2)', dot:'#2E9E55', tb:'@thepandamanofficial' },
   { name:'Apex Fitness',  handle:'@apexfitness · 184K',         initials:'AF', color:'#E8521A', bg:'rgba(232,82,26,0.2)', dot:'#E8521A', tb:'@apexfitness' },
-  { name:'Nova Skincare', handle:'@novaskin · 92K',              initials:'NS', color:'#1A4FA8', bg:'rgba(26,79,168,0.2)', dot:'#1A4FA8', tb:'@novaskin' }
+  { name:'Nova Skincare', handle:'@novaskin · 92K',              initials:'NS', color:'#E03131', bg:'rgba(224,49,49,0.2)', dot:'#E03131', tb:'@novaskin' }
 ];
 let activeClient = 0;
 let activePage = 'analytics';
@@ -794,10 +795,10 @@ document.getElementById('add-modal').addEventListener('click', e => { if(e.targe
 let chartsInit = false;
 function initCharts() {
   if (chartsInit) return; chartsInit = true;
-  const gc = 'rgba(0,0,0,0.07)', tc = 'rgba(0,0,0,0.38)';
-  new Chart(document.getElementById('ec-0'), { type:'doughnut', data:{ labels:['Fasting Ed','Panda Diet','Mindset','Lifestyle'], datasets:[{ data:[52,24,14,10], backgroundColor:['#E8521A','#1A7A4A','#1A4FA8','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: i => i.label+': '+i.parsed+'%' } } } } });
+  const gc = 'rgba(255,255,255,0.08)', tc = 'rgba(255,255,255,0.45)';
+  new Chart(document.getElementById('ec-0'), { type:'doughnut', data:{ labels:['Fasting Ed','Panda Diet','Mindset','Lifestyle'], datasets:[{ data:[52,24,14,10], backgroundColor:['#E8521A','#1A7A4A','#E03131','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: i => i.label+': '+i.parsed+'%' } } } } });
   new Chart(document.getElementById('vc-0'), { type:'bar', data:{ labels:['Wk 1','Wk 2','Wk 3','Wk 4'], datasets:[{ data:[0.89,1.1,0.98,1.4], backgroundColor:['rgba(46,158,85,0.22)','rgba(46,158,85,0.22)','rgba(46,158,85,0.22)','#2E9E55'], borderRadius:4, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:tc, font:{ size:10 } } }, y:{ grid:{ color:gc }, ticks:{ color:tc, font:{ size:10 }, callback: v => v+'M' } } } } });
-  new Chart(document.getElementById('ec-1'), { type:'doughnut', data:{ labels:['Views','Saves','Shares','Comments'], datasets:[{ data:[58,22,12,8], backgroundColor:['#E8521A','#1A7A4A','#1A4FA8','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false } } } });
+  new Chart(document.getElementById('ec-1'), { type:'doughnut', data:{ labels:['Views','Saves','Shares','Comments'], datasets:[{ data:[58,22,12,8], backgroundColor:['#E8521A','#1A7A4A','#E03131','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false } } } });
   new Chart(document.getElementById('vc-1'), { type:'bar', data:{ labels:['Wk 1','Wk 2','Wk 3','Wk 4'], datasets:[{ data:[1.2,1.5,1.1,2.4], backgroundColor:['rgba(232,82,26,0.22)','rgba(232,82,26,0.22)','rgba(232,82,26,0.22)','#E8521A'], borderRadius:4, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:tc, font:{ size:10 } } }, y:{ grid:{ color:gc }, ticks:{ color:tc, font:{ size:10 }, callback: v => v+'M' } } } } });
 }
 const _s = document.createElement('style');

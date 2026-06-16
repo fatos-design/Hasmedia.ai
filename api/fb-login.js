@@ -3,11 +3,12 @@
 // and for everyone once the app is Live).
 module.exports = (req, res) => {
   const APP_ID   = process.env.META_APP_ID || '1524223295814802';
+  const CONFIG   = process.env.META_CONFIG_ID || '2098011074395484';
   const REDIRECT = 'https://hasmedia.ai/api/fb-callback';
   const url = 'https://www.facebook.com/v19.0/dialog/oauth'
     + '?client_id='     + APP_ID
+    + '&config_id='     + CONFIG
     + '&redirect_uri='  + encodeURIComponent(REDIRECT)
-    + '&scope='         + encodeURIComponent('public_profile')
     + '&response_type=code';
   res.writeHead(302, { Location: url });
   res.end();

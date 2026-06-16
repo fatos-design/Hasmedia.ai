@@ -7,7 +7,7 @@ module.exports = (req, res) => {
   const url = 'https://www.facebook.com/v19.0/dialog/oauth'
     + '?client_id='     + APP_ID
     + '&redirect_uri='  + encodeURIComponent(REDIRECT)
-    + '&scope='         + encodeURIComponent('public_profile,email')
+    + '&scope='         + encodeURIComponent('public_profile')
     + '&response_type=code';
   res.writeHead(302, { Location: url });
   res.end();

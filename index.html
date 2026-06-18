@@ -666,14 +666,21 @@ function askPush(text,who){const b=document.getElementById('ask-body');const d=d
 function askQ(q){document.getElementById('ask-input').value=q;sendAsk();}
 function sendAsk(){const i=document.getElementById('ask-input');const q=i.value.trim();if(!q)return;askPush(q.replace(/[<>]/g,''),'user');i.value='';setTimeout(()=>askPush(askAnswer(q),'bot'),380);}
 function askAnswer(q){
-  const d=clientData[activeClient]||clientData[0];const t=q.toLowerCase();
+  const d=clientData[activeClient]||clientData[0];const t=q.toLowerCase().trim();
+  const who='<strong>'+d.name+'</strong>';
+  if(/\b(how are you|how's it going|how are u|hows it going|how you doing|wyd|what's up|whats up|sup)\b/.test(t)) return 'Doing great, thanks for asking! 😊 Ready to dig into '+who+'’s numbers whenever you are — want followers, top post, or content ideas?';
+  if(/\b(thank|thanks|thx|appreciate)\b/.test(t)) return 'Anytime bro! 🙌 Ask me anything else about '+who+'.';
+  if(/\b(who are you|what are you|your name|who r u)\b/.test(t)) return 'I’m <strong>Ask HasMedia</strong> — your content intelligence assistant. I read '+who+'’s Instagram data and help with strategy, top posts, and content ideas. 💡';
+  if(/\b(bye|goodbye|see ya|later|cya|peace)\b/.test(t)) return 'Catch you later! 👋 I’ll be here when you need '+who+'’s insights.';
+  if(/\b(good|great|awesome|nice|cool|amazing|love it|lol|haha|fire)\b/.test(t)&&t.length<22) return 'Glad you think so! 🔥 Want me to pull something for '+who+' — top post, followers, or ideas?';
+  if(/\b(yes|yeah|yep|sure|okay|ok)\b/.test(t)&&t.length<12) return 'You got it! Ask me about followers, top post, saves, or content ideas for '+who+'. 👇';
   if(/follower|how many.*follow|audience size/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.followers+' followers</span> \u2014 up '+d.growth+' this month. 📈';
   if(/top|best|most.*(view|seen|watch)|which video|highest|performed/.test(t)) return d.topMult ? 'The top performer is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+' views</span> ('+d.topMult+' the account average). 🔥' : 'Your top recent post is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+'</span>. 🔥';
   if(/save|saved/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.saves+' saves</span> recently \u2014 a strong sign people find the content reference-worthy. 🔖';
   if(/idea|content|post about|what should|brief|create|video/.test(t)) return 'Here are 3 ideas tuned to '+d.niche+':<br>\u2022 '+d.ideas.join('<br>\u2022 ')+'<br><br>Want full briefs? Open <strong>Video Ideation</strong> in the sidebar. 💡';
   if(/best time|when.*post|posting time|schedule/.test(t)) return 'Best posting window for <strong>'+d.name+'</strong>: <span class=\"hi\">'+d.bestTime+'</span>. ⏰';
   if(/view|reach|impression|engagement/.test(t)) return '<strong>'+d.name+'</strong> is averaging <span class=\"hi\">'+d.avgViews+'</span> \u2014 trending up '+d.growth+'.';
-  if(/^(hi|hey|hello|help|what can|yo)\b/.test(t)) return 'I can tell you about <strong>'+d.name+'</strong>: followers, top videos, saves, best posting times, and content ideas. Tap a chip below 👇';
+  if(/^(hi|hey|hello|yo|hiya|howdy|greetings|help|what can)\b/.test(t)) return 'Hey! 👋 I’m Ask HasMedia. I can tell you about '+who+': <strong>followers</strong>, <strong>top post</strong>, <strong>saves</strong>, <strong>best posting times</strong>, and <strong>content ideas</strong>. What do you want to know?';
   return 'For <strong>'+d.name+'</strong> I can answer: followers, top video, saves, best posting time, and content ideas. Try one of those or tap a chip below. 👇';
 }
 

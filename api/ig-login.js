@@ -1,17 +1,18 @@
-// Step 1 of Instagram connect: send the user to Facebook's OAuth dialog.
-// Uses the Facebook Login for Business configuration (config_id). The config
-// currently grants pages_show_list; Instagram insight permissions get added to
-// the config after Meta business verification + App Review.
+// "Continue with Instagram" → step 1.
+// Uses the NEW "Instagram API with Instagram Login" (no Facebook Page needed).
+// Sends the client straight to Instagram's own OAuth dialog with the
+// instagram_business_* scopes. Instagram redirects back to /api/ig-callback
+// with a one-time ?code= that we exchange server-side for a token.
 module.exports = (req, res) => {
-  const APP_ID   = process.env.META_APP_ID || '1524223295814802';
-  const CONFIG   = process.env.META_CONFIG_ID || '2098011074395484';
-  const REDIRECT = 'https://hasmedia.ai/api/ig-callback';
+  const IG_APP_ID = process.env.IG_APP_ID || '1518274316421742';
+  const REDIRECT  = 'https://hasmedia.ai/api/ig-callback';
+  const SCOPE     = 'instagram_business_basic,instagram_business_manage_insights';
 
-  const authUrl = 'https://www.facebook.com/v19.0/dialog/oauth'
-    + '?client_id='     + APP_ID
-    + '&config_id='     + CONFIG
+  const authUrl = 'https://www.instagram.com/oauth/authorize'
+    + '?client_id='     + IG_APP_ID
     + '&redirect_uri='  + encodeURIComponent(REDIRECT)
-    + '&response_type=code';
+    + '&response_type=code'
+    + '&scope='         + encodeURIComponent(SCOPE);
 
   res.writeHead(302, { Location: authUrl });
   res.end();

@@ -668,7 +668,7 @@ function sendAsk(){const i=document.getElementById('ask-input');const q=i.value.
 function askAnswer(q){
   const d=clientData[activeClient]||clientData[0];const t=q.toLowerCase();
   if(/follower|how many.*follow|audience size/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.followers+' followers</span> \u2014 up '+d.growth+' this month. 📈';
-  if(/top|best|most.*(view|seen|watch)|which video|highest|performed/.test(t)) return 'The top performer is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+' views</span> ('+d.topMult+' the account average). 🔥';
+  if(/top|best|most.*(view|seen|watch)|which video|highest|performed/.test(t)) return d.topMult ? 'The top performer is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+' views</span> ('+d.topMult+' the account average). 🔥' : 'Your top recent post is <span class=\"hi\">'+d.topVideo+'</span> with <span class=\"hi\">'+d.topViews+'</span>. 🔥';
   if(/save|saved/.test(t)) return '<strong>'+d.name+'</strong> has <span class=\"hi\">'+d.saves+' saves</span> recently \u2014 a strong sign people find the content reference-worthy. 🔖';
   if(/idea|content|post about|what should|brief|create|video/.test(t)) return 'Here are 3 ideas tuned to '+d.niche+':<br>\u2022 '+d.ideas.join('<br>\u2022 ')+'<br><br>Want full briefs? Open <strong>Video Ideation</strong> in the sidebar. 💡';
   if(/best time|when.*post|posting time|schedule/.test(t)) return 'Best posting window for <strong>'+d.name+'</strong>: <span class=\"hi\">'+d.bestTime+'</span>. ⏰';
@@ -880,6 +880,11 @@ function applyLiveInstagram(u) {
     }
     clientData[0].avgViews = (Number(u.media) || 0) + ' posts';
     clientData[0].bestTime = '(unlocks with insights / App Review)';
+    clientData[0].niche = 'your recent content';
+    const caps = posts.slice(0, 3).map(p => esc(p.caption)).filter(Boolean);
+    clientData[0].ideas = caps.length
+      ? caps.map(c => 'More like "' + c + '" — one of your top recent posts')
+      : ['Post a Reel — they reach the most non-followers', 'A carousel recapping a recent highlight', 'A behind-the-scenes story from your day'];
   }
   // Refresh the chat greeting if it's already open.
   const ac = document.getElementById('ask-client');

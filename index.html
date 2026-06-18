@@ -861,6 +861,29 @@ function applyLiveInstagram(u) {
         + '<div class="psub">Instagram didn’t return media for this account.</div></div></div>';
     }
   }
+
+  // Update the Ask HasMedia data so the chat answers about the real account.
+  const top = posts.slice().sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))[0];
+  if (typeof clients !== 'undefined' && clients[0]) {
+    clients[0].name = u.username || u.name || 'Connected';
+    clients[0].handle = handle + ' · ' + fmt(u.followers);
+    clients[0].tb = handle;
+  }
+  if (typeof clientData !== 'undefined' && clientData[0]) {
+    clientData[0].name = u.username || u.name || 'Your account';
+    clientData[0].followers = fmt(u.followers);
+    clientData[0].growth = '—';
+    if (top) {
+      clientData[0].topVideo = '"' + (esc(top.caption) || 'your top post') + '"';
+      clientData[0].topViews = (Number(top.likes) || 0).toLocaleString() + ' likes';
+      clientData[0].topMult = '';
+    }
+    clientData[0].avgViews = (Number(u.media) || 0) + ' posts';
+    clientData[0].bestTime = '(unlocks with insights / App Review)';
+  }
+  // Refresh the chat greeting if it's already open.
+  const ac = document.getElementById('ask-client');
+  if (ac) ac.textContent = u.username || u.name || 'your account';
 }
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');

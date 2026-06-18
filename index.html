@@ -482,13 +482,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 
       <!-- ══ PANDA MAN — ANALYTICS ══ -->
       <div class="pg active" id="pg-analytics-0">
-        <div class="connect-banner"><span>🔗 <strong>@thepandamanofficial</strong> — connect Kyle's account to pull live data. Preview below is AI-generated from public profile.</span><button class="connect-btn" onclick="openModal()">Connect Instagram →</button></div>
+        <div class="connect-banner" id="connect-banner-0"><span>🔗 <strong>@thepandamanofficial</strong> — connect Kyle's account to pull live data. Preview below is AI-generated from public profile.</span><button class="connect-btn" onclick="openModal()">Connect Instagram →</button></div>
         <div class="ais"><span class="aiicon">AI</span><strong class="ai-hi">Weekly summary:</strong> Kyle's top reel — "The TRUE PURPOSE behind fasting" — est. <strong class="ai-hi">380K views</strong>, 2.8× his account average. Fasting myth-bust content outperforms lifestyle 3.1×. Best window: <strong class="ai-hi">Mon/Wed/Fri 7–9am EST</strong>.</div>
         <div class="mrow">
-          <div class="mc"><div class="ml">Followers</div><div class="mv">223K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+4.2% this mo</div></div>
+          <div class="mc"><div class="ml">Followers</div><div class="mv" id="kpi-followers">223K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+4.2% this mo</div></div>
           <div class="mc"><div class="ml">Avg reel views</div><div class="mv">142K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+22%</div></div>
           <div class="mc"><div class="ml">Est. saves</div><div class="mv">6,800</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+38%</div></div>
-          <div class="mc"><div class="ml">Total posts</div><div class="mv">1,921</div><div class="mch" style="color:var(--text3)">lifetime</div></div>
+          <div class="mc"><div class="ml">Total posts</div><div class="mv" id="kpi-posts">1,921</div><div class="mch" style="color:var(--text3)">lifetime</div></div>
         </div>
         <div class="slbl">Recent content (public)</div>
         <div class="plist">
@@ -784,10 +784,45 @@ function doInstagramLogin() { window.location.href = '/api/ig-login'; }
     const u = JSON.parse(s);
     sessionStorage.removeItem('hm_social');
     currentEmail = u.email || u.name;
-    const initials = (u.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    enterApp({ name: u.name || 'Member', initials }, u.email || u.name);
+    const handle = (u.username ? '@' + u.username : (u.name || 'Member'));
+    const initials = (u.username || u.name || 'U').replace('@', '').slice(0, 2).toUpperCase();
+    enterApp({ name: u.name || handle, initials }, u.email || handle);
+    // If this was a real Instagram connection, pump the live numbers into the dashboard.
+    if (u.provider === 'instagram') applyLiveInstagram(u);
   } catch (e) {}
 })();
+
+// Replace the demo data in the active client view with the real connected account.
+function applyLiveInstagram(u) {
+  const fmt = n => {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1000)    return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return n.toLocaleString();
+  };
+  const handle = u.username ? '@' + u.username : (u.name || '');
+  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  // Sidebar active-client + top-bar
+  setTxt('cs-name', u.username || u.name || 'Connected');
+  setTxt('cs-handle', handle);
+  setTxt('tb-client', handle);
+  const av = document.getElementById('cs-avatar');
+  if (av) av.textContent = (u.username || 'U').replace('@', '').slice(0, 2).toUpperCase();
+
+  // KPI cards — real numbers
+  setTxt('kpi-followers', fmt(u.followers));
+  setTxt('kpi-posts', (Number(u.media) || 0).toLocaleString());
+
+  // Connect banner → connected state
+  const banner = document.getElementById('connect-banner-0');
+  if (banner) {
+    banner.innerHTML = '<span>✅ <strong>' + handle + '</strong> connected — live data from Instagram. '
+      + fmt(u.followers) + ' followers · ' + (Number(u.media) || 0) + ' posts.</span>';
+    banner.style.borderColor = 'var(--green)';
+    banner.style.background = 'var(--green-bg)';
+  }
+}
 function doLogout() {
   document.getElementById('app-screen').classList.remove('visible');
   const ls = document.getElementById('login-screen');

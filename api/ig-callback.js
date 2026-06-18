@@ -61,11 +61,30 @@ a{display:inline-block;margin-top:1.3rem;background:#E8521A;color:#fff;text-deco
       + '&access_token=' + token)).json();
     if (prof.error) throw new Error(prof.error.message);
 
+    // 4) recent posts (best-effort — don't fail the login if this errors)
+    let posts = [];
+    try {
+      const med = await (await fetch('https://graph.instagram.com/me/media'
+        + '?fields=id,caption,media_type,permalink,thumbnail_url,media_url,timestamp,like_count,comments_count'
+        + '&limit=6&access_token=' + token)).json();
+      if (med && Array.isArray(med.data)) {
+        posts = med.data.map(m => ({
+          caption:  (m.caption || '').replace(/\s+/g, ' ').trim().slice(0, 70),
+          type:     m.media_type || 'POST',
+          permalink: m.permalink || '',
+          timestamp: m.timestamp || '',
+          likes:    m.like_count || 0,
+          comments: m.comments_count || 0
+        }));
+      }
+    } catch (e) { /* posts stay empty */ }
+
     const user = {
       name:      prof.username ? '@' + prof.username : 'Instagram user',
       username:  prof.username || '',
       followers: prof.followers_count || 0,
       media:     prof.media_count || 0,
+      posts:     posts,
       provider:  'instagram'
     };
 

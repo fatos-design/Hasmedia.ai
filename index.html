@@ -491,7 +491,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <div class="mc"><div class="ml">Total posts</div><div class="mv" id="kpi-posts">1,921</div><div class="mch" style="color:var(--text3)">lifetime</div></div>
         </div>
         <div class="slbl">Recent content (public)</div>
-        <div class="plist">
+        <div class="plist" id="recent-content-0">
           <div class="prow"><div class="pthumb">🐼</div><div><div class="ptitle2">The TRUE PURPOSE behind fasting</div><div class="psub">Reel · fasting education</div></div><span class="fl fv">📈 Viral</span><div><div class="pstat">380K</div><div class="pstatl">est. views</div></div></div>
           <div class="prow"><div class="pthumb">⏰</div><div><div class="ptitle2">Stop doing THIS during a fast</div><div class="psub">Reel · fasting tips</div></div><span class="fl fv">📈 Viral</span><div><div class="pstat">290K</div><div class="pstatl">est. views</div></div></div>
           <div class="prow"><div class="pthumb">🍽️</div><div><div class="ptitle2">This is how I BREAK THE FAST!</div><div class="psub">Reel · Panda Diet</div></div><span class="fl fr">🔥 Rising</span><div><div class="pstat">198K</div><div class="pstatl">est. views</div></div></div>
@@ -821,6 +821,23 @@ function applyLiveInstagram(u) {
       + fmt(u.followers) + ' followers · ' + (Number(u.media) || 0) + ' posts.</span>';
     banner.style.borderColor = 'var(--green)';
     banner.style.background = 'var(--green-bg)';
+  }
+
+  // Recent content → real posts
+  const list = document.getElementById('recent-content-0');
+  if (list && Array.isArray(u.posts) && u.posts.length) {
+    const icon = { VIDEO:'🎬', REEL:'🎬', IMAGE:'🖼️', CAROUSEL_ALBUM:'🖼️' };
+    const label = { VIDEO:'Video', REEL:'Reel', IMAGE:'Image', CAROUSEL_ALBUM:'Carousel' };
+    const esc = t => (t || '').replace(/[<>&]/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]));
+    list.innerHTML = u.posts.map(p => {
+      const date = p.timestamp ? new Date(p.timestamp).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '';
+      const title = esc(p.caption) || '(no caption)';
+      return '<div class="prow"><div class="pthumb">' + (icon[p.type] || '📷') + '</div>'
+        + '<div><div class="ptitle2">' + title + '</div>'
+        + '<div class="psub">' + (label[p.type] || 'Post') + (date ? ' · ' + date : '') + '</div></div>'
+        + '<span class="fl fr" style="font-size:9px">❤️ ' + (Number(p.likes) || 0).toLocaleString() + '</span>'
+        + '<div><div class="pstat">' + (Number(p.comments) || 0).toLocaleString() + '</div><div class="pstatl">comments</div></div></div>';
+    }).join('');
   }
 }
 function doLogout() {

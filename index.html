@@ -483,7 +483,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
       <!-- ══ PANDA MAN — ANALYTICS ══ -->
       <div class="pg active" id="pg-analytics-0">
         <div class="connect-banner" id="connect-banner-0"><span>🔗 <strong>@thepandamanofficial</strong> — connect Kyle's account to pull live data. Preview below is AI-generated from public profile.</span><button class="connect-btn" onclick="openModal()">Connect Instagram →</button></div>
-        <div class="ais"><span class="aiicon">AI</span><strong class="ai-hi">Weekly summary:</strong> Kyle's top reel — "The TRUE PURPOSE behind fasting" — est. <strong class="ai-hi">380K views</strong>, 2.8× his account average. Fasting myth-bust content outperforms lifestyle 3.1×. Best window: <strong class="ai-hi">Mon/Wed/Fri 7–9am EST</strong>.</div>
+        <div class="ais" id="ai-summary-0"><span class="aiicon">AI</span><strong class="ai-hi">Weekly summary:</strong> Kyle's top reel — "The TRUE PURPOSE behind fasting" — est. <strong class="ai-hi">380K views</strong>, 2.8× his account average. Fasting myth-bust content outperforms lifestyle 3.1×. Best window: <strong class="ai-hi">Mon/Wed/Fri 7–9am EST</strong>.</div>
         <div class="mrow">
           <div class="mc"><div class="ml">Followers</div><div class="mv" id="kpi-followers">223K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+4.2% this mo</div></div>
           <div class="mc"><div class="ml">Avg reel views</div><div class="mv">142K</div><div class="mch up"><i class="ti ti-arrow-up" style="font-size:10px"></i>+22%</div></div>
@@ -823,21 +823,43 @@ function applyLiveInstagram(u) {
     banner.style.background = 'var(--green-bg)';
   }
 
+  const esc = t => (t || '').replace(/[<>&]/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]));
+  const posts = Array.isArray(u.posts) ? u.posts : [];
+
+  // AI weekly summary → real account
+  const sum = document.getElementById('ai-summary-0');
+  if (sum) {
+    let txt = '<span class="aiicon">AI</span><strong class="ai-hi">Account summary:</strong> ' + handle
+      + ' has <strong class="ai-hi">' + fmt(u.followers) + ' followers</strong> across '
+      + (Number(u.media) || 0) + ' posts. ';
+    if (posts.length) {
+      const top = posts.slice().sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))[0];
+      txt += 'Top recent post: "<strong class="ai-hi">' + (esc(top.caption) || 'untitled') + '</strong>" — '
+        + (Number(top.likes) || 0).toLocaleString() + ' likes, ' + (Number(top.comments) || 0).toLocaleString() + ' comments. ';
+    }
+    txt += '<span style="color:var(--text3)">Views &amp; reach analytics unlock after Meta App Review.</span>';
+    sum.innerHTML = txt;
+  }
+
   // Recent content → real posts
   const list = document.getElementById('recent-content-0');
-  if (list && Array.isArray(u.posts) && u.posts.length) {
-    const icon = { VIDEO:'🎬', REEL:'🎬', IMAGE:'🖼️', CAROUSEL_ALBUM:'🖼️' };
-    const label = { VIDEO:'Video', REEL:'Reel', IMAGE:'Image', CAROUSEL_ALBUM:'Carousel' };
-    const esc = t => (t || '').replace(/[<>&]/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]));
-    list.innerHTML = u.posts.map(p => {
-      const date = p.timestamp ? new Date(p.timestamp).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '';
-      const title = esc(p.caption) || '(no caption)';
-      return '<div class="prow"><div class="pthumb">' + (icon[p.type] || '📷') + '</div>'
-        + '<div><div class="ptitle2">' + title + '</div>'
-        + '<div class="psub">' + (label[p.type] || 'Post') + (date ? ' · ' + date : '') + '</div></div>'
-        + '<span class="fl fr" style="font-size:9px">❤️ ' + (Number(p.likes) || 0).toLocaleString() + '</span>'
-        + '<div><div class="pstat">' + (Number(p.comments) || 0).toLocaleString() + '</div><div class="pstatl">comments</div></div></div>';
-    }).join('');
+  if (list) {
+    if (posts.length) {
+      const icon = { VIDEO:'🎬', REEL:'🎬', IMAGE:'🖼️', CAROUSEL_ALBUM:'🖼️' };
+      const label = { VIDEO:'Video', REEL:'Reel', IMAGE:'Image', CAROUSEL_ALBUM:'Carousel' };
+      list.innerHTML = posts.map(p => {
+        const date = p.timestamp ? new Date(p.timestamp).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '';
+        const title = esc(p.caption) || '(no caption)';
+        return '<div class="prow"><div class="pthumb">' + (icon[p.type] || '📷') + '</div>'
+          + '<div><div class="ptitle2">' + title + '</div>'
+          + '<div class="psub">' + (label[p.type] || 'Post') + (date ? ' · ' + date : '') + '</div></div>'
+          + '<span class="fl fr" style="font-size:9px">❤️ ' + (Number(p.likes) || 0).toLocaleString() + '</span>'
+          + '<div><div class="pstat">' + (Number(p.comments) || 0).toLocaleString() + '</div><div class="pstatl">comments</div></div></div>';
+      }).join('');
+    } else {
+      list.innerHTML = '<div class="prow"><div class="pthumb">📭</div><div><div class="ptitle2">No public posts returned</div>'
+        + '<div class="psub">Instagram didn’t return media for this account.</div></div></div>';
+    }
   }
 }
 function doLogout() {

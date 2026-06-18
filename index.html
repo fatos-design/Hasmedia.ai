@@ -499,7 +499,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <div class="prow"><div class="pthumb">📅</div><div><div class="ptitle2">HOW FREQUENTLY can you fast?</div><div class="psub">Reel · fasting frequency</div></div><span class="fl fd">⚠️ Declining</span><div><div class="pstat">61K</div><div class="pstatl">est. views</div></div></div>
         </div>
         <div class="tcol">
-          <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Content type breakdown</div><div style="position:relative;height:150px"><canvas id="ec-0" role="img" aria-label="Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%">Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%</canvas></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Fasting Ed 52%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Panda Diet 24%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E03131;display:inline-block"></span>Mindset 14%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Lifestyle 10%</span></div></div>
+          <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Content type breakdown</div><div style="position:relative;height:150px"><canvas id="ec-0" role="img" aria-label="Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%">Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%</canvas></div><div id="ec-legend-0" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Fasting Ed 52%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Panda Diet 24%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E03131;display:inline-block"></span>Mindset 14%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Lifestyle 10%</span></div></div>
           <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Est. weekly view trend</div><div style="position:relative;height:150px"><canvas id="vc-0" role="img" aria-label="Weekly views trend">Wk1 890K, Wk2 1.1M, Wk3 980K, Wk4 1.4M</canvas></div></div>
         </div>
       </div>
@@ -862,6 +862,23 @@ function applyLiveInstagram(u) {
     }
   }
 
+  // Content type breakdown — by media type of recent posts (set before initCharts runs).
+  if (posts.length) {
+    const typeMap = { REEL:'Reels', VIDEO:'Reels', IMAGE:'Images', CAROUSEL_ALBUM:'Carousels' };
+    const palette = { Reels:'#1A7A4A', Images:'#E03131', Carousels:'#E8521A', Other:'#F0A500' };
+    const counts = {};
+    posts.forEach(p => { const k = typeMap[p.type] || 'Other'; counts[k] = (counts[k] || 0) + 1; });
+    const labels = Object.keys(counts);
+    const total = posts.length;
+    const data = labels.map(l => Math.round(counts[l] / total * 100));
+    const colors = labels.map(l => palette[l] || '#F0A500');
+    window.liveContentBreakdown = { labels, data, colors };
+    const leg = document.getElementById('ec-legend-0');
+    if (leg) leg.innerHTML = labels.map((l, i) =>
+      '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:'
+      + colors[i] + ';display:inline-block"></span>' + l + ' ' + data[i] + '%</span>').join('');
+  }
+
   // Update the Ask HasMedia data so the chat answers about the real account.
   const top = posts.slice().sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))[0];
   if (typeof clients !== 'undefined' && clients[0]) {
@@ -976,7 +993,8 @@ let chartsInit = false;
 function initCharts() {
   if (chartsInit) return; chartsInit = true;
   const gc = 'rgba(255,255,255,0.08)', tc = 'rgba(255,255,255,0.45)';
-  new Chart(document.getElementById('ec-0'), { type:'doughnut', data:{ labels:['Fasting Ed','Panda Diet','Mindset','Lifestyle'], datasets:[{ data:[52,24,14,10], backgroundColor:['#E8521A','#1A7A4A','#E03131','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: i => i.label+': '+i.parsed+'%' } } } } });
+  const ecb = window.liveContentBreakdown;
+  new Chart(document.getElementById('ec-0'), { type:'doughnut', data:{ labels: ecb ? ecb.labels : ['Fasting Ed','Panda Diet','Mindset','Lifestyle'], datasets:[{ data: ecb ? ecb.data : [52,24,14,10], backgroundColor: ecb ? ecb.colors : ['#E8521A','#1A7A4A','#E03131','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: i => i.label+': '+i.parsed+'%' } } } } });
   new Chart(document.getElementById('vc-0'), { type:'bar', data:{ labels:['Wk 1','Wk 2','Wk 3','Wk 4'], datasets:[{ data:[0.89,1.1,0.98,1.4], backgroundColor:['rgba(46,158,85,0.22)','rgba(46,158,85,0.22)','rgba(46,158,85,0.22)','#2E9E55'], borderRadius:4, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:tc, font:{ size:10 } } }, y:{ grid:{ color:gc }, ticks:{ color:tc, font:{ size:10 }, callback: v => v+'M' } } } } });
   new Chart(document.getElementById('ec-1'), { type:'doughnut', data:{ labels:['Views','Saves','Shares','Comments'], datasets:[{ data:[58,22,12,8], backgroundColor:['#E8521A','#1A7A4A','#E03131','#F0A500'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ display:false } } } });
   new Chart(document.getElementById('vc-1'), { type:'bar', data:{ labels:['Wk 1','Wk 2','Wk 3','Wk 4'], datasets:[{ data:[1.2,1.5,1.1,2.4], backgroundColor:['rgba(232,82,26,0.22)','rgba(232,82,26,0.22)','rgba(232,82,26,0.22)','#E8521A'], borderRadius:4, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ color:tc, font:{ size:10 } } }, y:{ grid:{ color:gc }, ticks:{ color:tc, font:{ size:10 }, callback: v => v+'M' } } } } });

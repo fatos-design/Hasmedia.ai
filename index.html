@@ -664,7 +664,33 @@ function toggleAsk(){
 }
 function askPush(text,who){const b=document.getElementById('ask-body');const d=document.createElement('div');d.className='ask-msg ask-'+who;d.innerHTML=text;b.appendChild(d);b.scrollTop=b.scrollHeight;}
 function askQ(q){document.getElementById('ask-input').value=q;sendAsk();}
-function sendAsk(){const i=document.getElementById('ask-input');const q=i.value.trim();if(!q)return;askPush(q.replace(/[<>]/g,''),'user');i.value='';setTimeout(()=>askPush(askAnswer(q),'bot'),380);}
+function sendAsk(){
+  const i=document.getElementById('ask-input');const q=i.value.trim();if(!q)return;
+  askPush(q.replace(/[<>]/g,''),'user');i.value='';
+  const b=document.getElementById('ask-body');
+  const typing=document.createElement('div');typing.className='ask-msg ask-bot';typing.id='ask-typing';typing.textContent='…';
+  b.appendChild(typing);b.scrollTop=b.scrollHeight;
+  askRemote(q).then(ans=>{
+    const t=document.getElementById('ask-typing');if(t)t.remove();
+    askPush((ans&&ans.trim())?ans.replace(/\n/g,'<br>'):askAnswer(q),'bot');
+  });
+}
+// Try the real Claude AI endpoint; resolve null on any failure so the caller
+// falls back to the built-in scripted answer.
+function askRemote(q){
+  const d=clientData[activeClient]||clientData[0];
+  let ctx='Client account: '+d.name+'. Followers: '+d.followers+'.';
+  const a=window.liveAccount;
+  if(a){
+    ctx='Instagram account @'+a.username+'. Followers: '+a.followers+'. Total posts: '+a.media+'.';
+    if(a.posts&&a.posts.length){
+      ctx+=' Recent posts: '+a.posts.slice(0,8).map(p=>'"'+(p.caption||'untitled')+'" ('+(p.type||'post')+', '+(p.likes||0)+' likes, '+(p.comments||0)+' comments)').join('; ')+'.';
+    }
+    ctx+=' Note: exact views/reach/impressions are not available yet (need deeper analytics).';
+  }
+  return fetch('/api/ask',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:q,context:ctx})})
+    .then(r=>r.json()).then(j=>j&&j.answer?j.answer:null).catch(()=>null);
+}
 function askAnswer(q){
   const d=clientData[activeClient]||clientData[0];const t=q.toLowerCase().trim();
   const who='<strong>'+d.name+'</strong>';
@@ -801,6 +827,7 @@ function doInstagramLogin() { window.location.href = '/api/ig-login'; }
 
 // Replace the demo data in the active client view with the real connected account.
 function applyLiveInstagram(u) {
+  window.liveAccount = u;
   const fmt = n => {
     n = Number(n) || 0;
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';

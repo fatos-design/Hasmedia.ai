@@ -130,6 +130,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
 .tb-icon{width:32px;height:32px;border-radius:6px;border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--text2);transition:background 0.1s}
 .tb-icon:hover{background:var(--bg2)}
 .tb-admin{background:var(--orange-bg);border-color:rgba(232,82,26,0.3);color:var(--orange-text);font-size:10px;font-family:'DM Mono',monospace;padding:0 10px;width:auto;gap:5px;font-weight:500}
+.tb-report{background:var(--green-bg);border-color:rgba(26,122,74,0.35);color:#4ADE80;font-size:10px;font-family:'DM Mono',monospace;padding:0 10px;width:auto;gap:5px;font-weight:500}
+.report-modal-box{max-width:640px}
+.report-card{background:#fff;color:#13131A;padding:2.2rem 2.4rem;font-family:'DM Sans',sans-serif;max-height:70vh;overflow-y:auto}
+.report-card .rc-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #eee;padding-bottom:1rem;margin-bottom:1.3rem}
+.report-card .rc-brand{font-weight:700;font-size:1.1rem;letter-spacing:-0.01em}
+.report-card .rc-range{font-size:11px;color:#888;font-family:'DM Mono',monospace}
+.report-card h2{font-size:1.5rem;margin:0 0 0.2rem;letter-spacing:-0.02em}
+.report-card .rc-handle{color:#E8521A;font-weight:600;font-size:0.95rem;margin-bottom:1.4rem}
+.report-card .rc-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;margin-bottom:1.5rem}
+.report-card .rc-kpi{background:#F7F7F5;border-radius:10px;padding:0.9rem 1rem}
+.report-card .rc-kpi .v{font-size:1.5rem;font-weight:700}
+.report-card .rc-kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#999;font-family:'DM Mono',monospace;margin-top:2px}
+.report-card .rc-sec{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#999;font-family:'DM Mono',monospace;margin:1.4rem 0 0.7rem}
+.report-card .rc-summary{font-size:0.92rem;line-height:1.65;color:#333;background:#FFF6F2;border-left:3px solid #E8521A;padding:0.9rem 1.1rem;border-radius:0 8px 8px 0}
+.report-card .rc-post{display:flex;align-items:center;gap:10px;padding:0.6rem 0;border-bottom:1px solid #f0f0f0;font-size:0.88rem}
+.report-card .rc-post .t{flex:1;color:#222}
+.report-card .rc-post .e{color:#E8521A;font-weight:600;font-size:0.82rem}
+.report-card .rc-foot{margin-top:1.6rem;padding-top:1rem;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center;font-family:'DM Mono',monospace}
+@media print{body *{visibility:hidden}#report-modal,#report-modal *{visibility:visible}.no-print{display:none!important}#report-modal{position:absolute;inset:0;background:#fff;display:block}.report-modal-box{max-width:100%;border:0}.report-card{max-height:none;overflow:visible}}
 
 .content{flex:1;overflow-y:auto;padding:1.1rem}
 .pg{display:none}.pg.active{display:block}
@@ -411,6 +430,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
   </div>
 </div>
 
+<!-- ═══════ WEEKLY REPORT ═══════ -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal report-modal-box">
+    <div class="modal-header no-print">
+      <div class="modal-title">Weekly Report</div>
+      <button class="modal-close" onclick="closeReport()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div id="report-card" class="report-card"></div>
+    </div>
+    <div class="modal-footer no-print">
+      <button class="btn-cancel" onclick="copyReport()"><i class="ti ti-copy"></i>Copy text</button>
+      <button class="btn-connect" onclick="printReport()"><i class="ti ti-download"></i>Save as PDF</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════ APP ═══════ -->
 <div id="app-screen">
 <div class="shell">
@@ -499,6 +535,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
         </span>
       </div>
       <div class="topbar-right">
+        <div class="tb-icon tb-report" onclick="openReport()"><i class="ti ti-file-text"></i> Weekly report</div>
         <div class="tb-icon tb-admin" onclick="openModal()"><i class="ti ti-circle-plus"></i> Add client</div>
         <div class="tb-icon" title="Refresh"><i class="ti ti-refresh"></i></div>
         <div class="tb-icon" title="Notifications"><i class="ti ti-bell"></i></div>
@@ -1027,6 +1064,69 @@ document.addEventListener('click', () => closeDropdown());
 /* ── ADD CLIENT MODAL ── */
 function openModal() { document.getElementById('add-modal').classList.add('open'); closeDropdown(); }
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+/* ── WEEKLY REPORT ── */
+function openReport() {
+  const a = window.liveAccount;
+  const d = clientData[activeClient] || clientData[0];
+  const esc = t => (t || '').replace(/[<>&]/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]));
+  const today = new Date();
+  const weekAgo = new Date(today.getTime() - 6 * 86400000);
+  const fmtDate = dt => dt.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+  const range = fmtDate(weekAgo) + ' – ' + fmtDate(today) + ', ' + today.getFullYear();
+
+  const handle = a ? '@' + a.username : (clients[activeClient] ? clients[activeClient].tb : '@client');
+  const name = a ? a.username : (clients[activeClient] ? clients[activeClient].name : 'Client');
+  const followers = a ? a.followers : d.followers;
+  const posts = a ? a.media : (d.avgViews || 0);
+  const realPosts = (a && Array.isArray(a.posts)) ? a.posts : [];
+  const top = realPosts.slice().sort((x,y) => (y.likes+y.comments) - (x.likes+x.comments))[0];
+  const totalLikes = realPosts.reduce((s,p) => s + (p.likes||0), 0);
+  const totalComments = realPosts.reduce((s,p) => s + (p.comments||0), 0);
+
+  const fmt = n => { n = Number(n)||0; return n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'')+'K' : n.toLocaleString(); };
+
+  const postsHtml = realPosts.length
+    ? realPosts.slice(0,5).map(p => '<div class="rc-post"><span class="t">'+esc((p.caption||'(no caption)').slice(0,52))+'</span><span class="e">❤️ '+(p.likes||0).toLocaleString()+' · 💬 '+(p.comments||0)+'</span></div>').join('')
+    : '<div class="rc-post"><span class="t" style="color:#999">Connect this client’s Instagram to include their posts.</span></div>';
+
+  const summaryText = a
+    ? name+' has '+fmt(followers)+' followers across '+posts+' posts. Across recent content, the account earned '+totalLikes.toLocaleString()+' likes and '+totalComments.toLocaleString()+' comments'+(top ? ', led by "'+ (top.caption||'a top post').slice(0,48) +'" with '+(top.likes||0).toLocaleString()+' likes' : '')+'. Keep doubling down on what’s resonating.'
+    : 'Connect '+handle+'’s Instagram account to generate a data-backed weekly summary.';
+
+  document.getElementById('report-card').innerHTML =
+    '<div class="rc-head"><div class="rc-brand">HasMedia · Content Intelligence</div><div class="rc-range">'+range+'</div></div>'
+    + '<h2>Weekly Performance Report</h2>'
+    + '<div class="rc-handle">'+handle+'</div>'
+    + '<div class="rc-kpis">'
+    +   '<div class="rc-kpi"><div class="v">'+fmt(followers)+'</div><div class="l">Followers</div></div>'
+    +   '<div class="rc-kpi"><div class="v">'+(Number(posts)||0).toLocaleString()+'</div><div class="l">Total posts</div></div>'
+    +   '<div class="rc-kpi"><div class="v">'+fmt(totalLikes)+'</div><div class="l">Recent likes</div></div>'
+    + '</div>'
+    + '<div class="rc-sec">Summary</div>'
+    + '<div class="rc-summary" id="rc-summary">'+esc(summaryText)+'</div>'
+    + '<div class="rc-sec">Recent content</div>' + postsHtml
+    + '<div class="rc-foot">Generated by HasMedia · hasmedia.ai · '+range+'</div>';
+
+  document.getElementById('report-modal').classList.add('open');
+
+  // If the AI is available, upgrade the summary with a sharper, client-ready paragraph.
+  if (a && window.liveAccount) {
+    const ctx = 'Instagram @'+a.username+'. Followers: '+a.followers+'. Posts: '+a.media+'. Recent engagement: '+totalLikes+' likes, '+totalComments+' comments'+(top ? '. Top post: "'+(top.caption||'').slice(0,60)+'" ('+(top.likes||0)+' likes).' : '.');
+    fetch('/api/ask', { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ question: 'Write a concise, upbeat 3-4 sentence weekly performance summary for this client that an agency would send them. No greeting, no sign-off, just the summary.', context: ctx }) })
+      .then(r => r.json()).then(j => { if (j && j.answer) { const el = document.getElementById('rc-summary'); if (el) el.textContent = j.answer.trim(); } }).catch(()=>{});
+  }
+}
+function closeReport() { document.getElementById('report-modal').classList.remove('open'); }
+function printReport() { window.print(); }
+function copyReport() {
+  const txt = document.getElementById('report-card').innerText;
+  navigator.clipboard.writeText(txt).then(() => {
+    const b = event.target.closest('button'); if (b) { const o = b.innerHTML; b.innerHTML = '<i class="ti ti-check"></i>Copied!'; setTimeout(() => b.innerHTML = o, 1400); }
+  }).catch(() => alert('Copy failed — select the text manually.'));
+}
+document.getElementById('report-modal').addEventListener('click', e => { if (e.target === document.getElementById('report-modal')) closeReport(); });
 function openSetup() { document.querySelectorAll('.ni').forEach(n => n.classList.remove('active')); document.querySelectorAll('.pg').forEach(p => p.classList.remove('active')); document.querySelectorAll('.ni').forEach(n => { if(n.textContent.includes('Meta')) n.classList.add('active'); }); document.getElementById('pg-setup-' + activeClient).classList.add('active'); document.getElementById('ptitle').textContent = 'Meta App Setup'; }
 function launchOAuth() { window.location.href = '/api/ig-login'; }
 // Build the dropdown item + pages for a client and append to the in-memory list.

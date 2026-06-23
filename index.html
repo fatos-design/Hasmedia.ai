@@ -902,6 +902,7 @@ function doInstagramLogin() { window.location.href = '/api/ig-login'; }
 // Replace the demo data in the active client view with the real connected account.
 function applyLiveInstagram(u) {
   window.liveAccount = u;
+  trackGrowth(u);
   const fmt = n => {
     n = Number(n) || 0;
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -1094,10 +1095,16 @@ function openReport() {
     ? name+' has '+fmt(followers)+' followers across '+posts+' posts. Across recent content, the account earned '+totalLikes.toLocaleString()+' likes and '+totalComments.toLocaleString()+' comments'+(top ? ', led by "'+ (top.caption||'a top post').slice(0,48) +'" with '+(top.likes||0).toLocaleString()+' likes' : '')+'. Keep doubling down on what’s resonating.'
     : 'Connect '+handle+'’s Instagram account to generate a data-backed weekly summary.';
 
+  const g = window.weeklyGrowth;
+  const growthHtml = (a && g && g.hasHistory)
+    ? '<div style="background:'+(g.gained>=0?'#EAF7EF':'#FDECEC')+';color:'+(g.gained>=0?'#1A7A4A':'#C0392B')+';border-radius:10px;padding:0.8rem 1.1rem;font-weight:600;font-size:0.95rem;margin-bottom:1.3rem">'+(g.gained>=0?'📈 +':'📉 ')+g.gained.toLocaleString()+' followers this week</div>'
+    : (a ? '<div style="background:#F7F7F5;color:#888;border-radius:10px;padding:0.8rem 1.1rem;font-size:0.85rem;margin-bottom:1.3rem">⏳ Weekly growth starts tracking from today — check back next week for the gain.</div>' : '');
+
   document.getElementById('report-card').innerHTML =
     '<div class="rc-head"><div class="rc-brand">HasMedia · Content Intelligence</div><div class="rc-range">'+range+'</div></div>'
     + '<h2>Weekly Performance Report</h2>'
     + '<div class="rc-handle">'+handle+'</div>'
+    + growthHtml
     + '<div class="rc-kpis">'
     +   '<div class="rc-kpi"><div class="v">'+fmt(followers)+'</div><div class="l">Followers</div></div>'
     +   '<div class="rc-kpi"><div class="v">'+(Number(posts)||0).toLocaleString()+'</div><div class="l">Total posts</div></div>'
@@ -1177,6 +1184,49 @@ function loadTeamClients() {
       });
     });
   }).catch(e => console.warn('Could not load team clients:', e));
+}
+
+/* ── WEEKLY GROWTH TRACKING ── */
+// Instagram only returns the CURRENT follower count, so we snapshot it daily
+// into the shared DB and compute the week-over-week change from history.
+function trackGrowth(a) {
+  if (!db || !a || !a.username) return;
+  const today = new Date();
+  const ymd = today.toISOString().slice(0, 10).replace(/-/g, '');
+  db.collection('snapshots').doc(a.username + '_' + ymd).set({
+    username: a.username, followers: a.followers || 0, media: a.media || 0,
+    date: ymd, ts: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true }).catch(e => console.warn('snapshot save failed', e));
+
+  db.collection('snapshots').where('username', '==', a.username).get().then(snap => {
+    const rows = []; snap.forEach(d => rows.push(d.data()));
+    if (!rows.length) return;
+    rows.sort((x, y) => (x.date || '').localeCompare(y.date || '')); // ascending by date
+    const weekAgo = new Date(today.getTime() - 7 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
+    // baseline = latest snapshot on/before a week ago, else the oldest we have
+    let base = rows[0];
+    for (const r of rows) { if (r.date <= weekAgo) base = r; }
+    const gained = (a.followers || 0) - (base.followers || 0);
+    const hasHistory = rows.length > 1 && base.date < ymd;
+    window.weeklyGrowth = { gained: gained, sinceDate: base.date, hasHistory: hasHistory };
+    applyGrowthToUI(gained, hasHistory);
+  }).catch(e => console.warn('growth read failed', e));
+}
+function applyGrowthToUI(gained, hasHistory) {
+  const el = document.getElementById('kpi-followers');
+  if (!el) return;
+  const chip = el.parentElement.querySelector('.mch');
+  if (!chip) return;
+  if (!hasHistory) {
+    chip.className = 'mch';
+    chip.style.color = 'var(--text3)';
+    chip.innerHTML = '<i class="ti ti-clock" style="font-size:10px"></i>tracking started';
+  } else {
+    const up = gained >= 0;
+    chip.className = 'mch ' + (up ? 'up' : 'dn');
+    chip.style.color = '';
+    chip.innerHTML = '<i class="ti ti-arrow-' + (up ? 'up' : 'down') + '" style="font-size:10px"></i>' + (up ? '+' : '') + gained.toLocaleString() + ' this week';
+  }
 }
 
 function addClientDemo() {

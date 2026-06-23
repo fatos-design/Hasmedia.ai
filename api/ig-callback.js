@@ -66,7 +66,7 @@ a{display:inline-block;margin-top:1.3rem;background:#E8521A;color:#fff;text-deco
     try {
       const med = await (await fetch('https://graph.instagram.com/me/media'
         + '?fields=id,caption,media_type,permalink,thumbnail_url,media_url,timestamp,like_count,comments_count'
-        + '&limit=6&access_token=' + token)).json();
+        + '&limit=25&access_token=' + token)).json();
       if (med && Array.isArray(med.data)) {
         posts = med.data.map(m => ({
           caption:  (m.caption || '').replace(/\s+/g, ' ').trim().slice(0, 70),
@@ -79,12 +79,37 @@ a{display:inline-block;margin-top:1.3rem;background:#E8521A;color:#fff;text-deco
       }
     } catch (e) { /* posts stay empty */ }
 
+    // 5) active stories (last 24h) + their insights — best-effort (needs insights permission)
+    let stories = [];
+    try {
+      const st = await (await fetch('https://graph.instagram.com/me/stories'
+        + '?fields=id,media_type,timestamp,permalink&access_token=' + token)).json();
+      if (st && Array.isArray(st.data)) {
+        stories = await Promise.all(st.data.slice(0, 12).map(async s => {
+          let reach = null, replies = null;
+          try {
+            const ins = await (await fetch('https://graph.instagram.com/' + s.id
+              + '/insights?metric=reach,replies&access_token=' + token)).json();
+            if (ins && Array.isArray(ins.data)) {
+              ins.data.forEach(m => {
+                const v = m.values && m.values[0] ? m.values[0].value : null;
+                if (m.name === 'reach') reach = v;
+                if (m.name === 'replies') replies = v;
+              });
+            }
+          } catch (e) {}
+          return { type: s.media_type || 'STORY', timestamp: s.timestamp || '', permalink: s.permalink || '', reach: reach, replies: replies };
+        }));
+      }
+    } catch (e) { /* no active stories or no insights access */ }
+
     const user = {
       name:      prof.username ? '@' + prof.username : 'Instagram user',
       username:  prof.username || '',
       followers: prof.followers_count || 0,
       media:     prof.media_count || 0,
       posts:     posts,
+      stories:   stories,
       provider:  'instagram'
     };
 

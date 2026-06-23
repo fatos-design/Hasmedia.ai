@@ -562,6 +562,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);
           <div class="prow"><div class="pthumb">❓</div><div><div class="ptitle2">What is the END GAME with fasting?</div><div class="psub">Reel · mindset</div></div><span class="fl fr">🔥 Rising</span><div><div class="pstat">174K</div><div class="pstatl">est. views</div></div></div>
           <div class="prow"><div class="pthumb">📅</div><div><div class="ptitle2">HOW FREQUENTLY can you fast?</div><div class="psub">Reel · fasting frequency</div></div><span class="fl fd">⚠️ Declining</span><div><div class="pstat">61K</div><div class="pstatl">est. views</div></div></div>
         </div>
+        <div id="stories-section-0" style="display:none">
+          <div class="slbl">Active stories <span style="color:var(--text3);font-weight:400">· last 24h</span></div>
+          <div class="plist" id="stories-list-0"></div>
+        </div>
         <div class="tcol">
           <div class="card"><div class="slbl" style="margin-bottom:0.7rem">Content type breakdown</div><div style="position:relative;height:150px"><canvas id="ec-0" role="img" aria-label="Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%">Fasting Ed 52%, Panda Diet 24%, Mindset 14%, Lifestyle 10%</canvas></div><div id="ec-legend-0" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--text2)"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E8521A;display:inline-block"></span>Fasting Ed 52%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1A7A4A;display:inline-block"></span>Panda Diet 24%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#E03131;display:inline-block"></span>Mindset 14%</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F0A500;display:inline-block"></span>Lifestyle 10%</span></div></div>
           <div class="card"><div class="slbl" id="vc-0-label" style="margin-bottom:0.7rem">Est. weekly view trend</div><div style="position:relative;height:150px"><canvas id="vc-0" role="img" aria-label="Weekly views trend">Wk1 890K, Wk2 1.1M, Wk3 980K, Wk4 1.4M</canvas></div></div>
@@ -991,6 +995,25 @@ function applyLiveInstagram(u) {
       list.innerHTML = '<div class="prow"><div class="pthumb">📭</div><div><div class="ptitle2">No public posts returned</div>'
         + '<div class="psub">Instagram didn’t return media for this account.</div></div></div>';
     }
+  }
+
+  // Active stories (last 24h) — only shown when the account has live stories.
+  const stories = Array.isArray(u.stories) ? u.stories : [];
+  const sSec = document.getElementById('stories-section-0');
+  const sList = document.getElementById('stories-list-0');
+  if (sSec && sList && stories.length) {
+    const sicon = { VIDEO:'🎬', IMAGE:'🖼️', STORY:'📸' };
+    sList.innerHTML = stories.map((s, i) => {
+      const t = s.timestamp ? new Date(s.timestamp).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' }) : '';
+      const reach = (s.reach != null) ? '<div><div class="pstat">' + Number(s.reach).toLocaleString() + '</div><div class="pstatl">reach</div></div>' : '<div><div class="pstat" style="color:var(--text3)">—</div><div class="pstatl">reach*</div></div>';
+      const replies = (s.replies != null) ? '<span class="fl fr" style="font-size:9px">💬 ' + Number(s.replies).toLocaleString() + '</span>' : '';
+      return '<div class="prow"><div class="pthumb">' + (sicon[s.type] || '📸') + '</div>'
+        + '<div><div class="ptitle2">Story ' + (i + 1) + '</div><div class="psub">' + (s.type === 'VIDEO' ? 'Video' : 'Photo') + (t ? ' · ' + t : '') + '</div></div>'
+        + replies + reach + '</div>';
+    }).join('');
+    sSec.style.display = 'block';
+  } else if (sSec) {
+    sSec.style.display = 'none';
   }
 
   // Content type breakdown — by media type of recent posts (set before initCharts runs).

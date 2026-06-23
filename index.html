@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -748,6 +749,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+let db = null; try { db = firebase.firestore(); } catch (e) { console.warn('Firestore unavailable', e); }
 
 /* ── LOGIN ── */
 let currentEmail = null;
@@ -785,6 +787,7 @@ function enterApp(user, email) {
     ls.style.display = 'none';
     document.getElementById('app-screen').classList.add('visible');
     initCharts();
+    loadTeamClients();
   }, 280);
 }
 
@@ -830,6 +833,7 @@ function doSocialLogin(provider, name, initials, email) {
     ls.style.display = 'none';
     document.getElementById('app-screen').classList.add('visible');
     initCharts();
+    loadTeamClients();
   }, 280);
 }
 function showSignIn() {
@@ -1025,33 +1029,68 @@ function openModal() { document.getElementById('add-modal').classList.add('open'
 function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
 function openSetup() { document.querySelectorAll('.ni').forEach(n => n.classList.remove('active')); document.querySelectorAll('.pg').forEach(p => p.classList.remove('active')); document.querySelectorAll('.ni').forEach(n => { if(n.textContent.includes('Meta')) n.classList.add('active'); }); document.getElementById('pg-setup-' + activeClient).classList.add('active'); document.getElementById('ptitle').textContent = 'Meta App Setup'; }
 function launchOAuth() { window.location.href = '/api/ig-login'; }
-function addClientDemo() {
-  const name = document.getElementById('new-client-name').value.trim();
-  const handle = document.getElementById('new-client-handle').value.trim();
-  if (!name || !handle) { alert('Please fill in client name and handle.'); return; }
+// Build the dropdown item + pages for a client and append to the in-memory list.
+function buildClientUI(c) {
   const idx = clients.length;
-  const colors = ['#9333EA','#0891B2','#D97706','#DC2626'];
-  const col = colors[idx % colors.length];
-  clients.push({ name, handle: handle + ' · New', initials: name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(), color: col, bg: col+'33', dot: col, tb: handle });
-  // Add to dropdown
+  const col = c.color || '#9333EA';
+  clients.push({ name: c.name, handle: c.handle, initials: c.initials, color: col, bg: col+'33', dot: col, tb: c.tb || c.handle });
   const dd = document.getElementById('client-dropdown');
   const divider = dd.querySelector('.cd-divider');
   const item = document.createElement('div');
   item.className = 'cd-item';
-  item.innerHTML = '<div class="cd-avatar" style="background:'+col+'33;color:'+col+'">'+clients[idx].initials+'</div><div class="cd-info"><div class="cd-cname">'+name+'</div><div class="cd-chandle">'+handle+'</div></div><span class="cd-status cd-status-pending">Pending</span><i class="ti ti-check cd-check" id="check-'+idx+'" style="opacity:0"></i>';
+  item.innerHTML = '<div class="cd-avatar" style="background:'+col+'33;color:'+col+'">'+c.initials+'</div><div class="cd-info"><div class="cd-cname">'+c.name+'</div><div class="cd-chandle">'+(c.tb||c.handle)+'</div></div><span class="cd-status cd-status-pending">Saved</span><i class="ti ti-check cd-check" id="check-'+idx+'" style="opacity:0"></i>';
   item.onclick = (e) => switchClient(idx, e);
-  dd.insertBefore(item, divider);
-  // Add placeholder pages
+  if (divider) dd.insertBefore(item, divider); else dd.appendChild(item);
   ['analytics','outliers','trends','ideas','setup'].forEach(pg => {
+    if (document.getElementById('pg-'+pg+'-'+idx)) return;
     const div = document.createElement('div');
     div.className = 'pg';
     div.id = 'pg-'+pg+'-'+idx;
-    div.innerHTML = '<div class="connect-banner"><span>🔗 <strong>'+handle+'</strong> — connect their Instagram account to get started.</span><button class="connect-btn" onclick="openModal()">Connect Instagram →</button></div>';
+    div.innerHTML = '<div class="connect-banner"><span>🔗 <strong>'+(c.tb||c.handle)+'</strong> — connect their Instagram account to get started.</span><button class="connect-btn" onclick="openModal()">Connect Instagram →</button></div>';
     document.querySelector('.content').appendChild(div);
   });
+  return idx;
+}
+
+// Save a client to the shared team database (visible to all managers).
+function saveClientToCloud(c) {
+  if (!db) return;
+  db.collection('clients').add({
+    name: c.name, handle: c.handle, initials: c.initials, color: c.color, tb: c.tb || c.handle,
+    addedBy: currentEmail || 'unknown',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(e => console.warn('Could not save client to cloud:', e));
+}
+
+// Load the team's saved clients once after sign-in (shared across fatos/okan/onur).
+let clientsLoaded = false;
+function loadTeamClients() {
+  if (!db || clientsLoaded) return;
+  clientsLoaded = true;
+  db.collection('clients').orderBy('createdAt').get().then(snap => {
+    snap.forEach(doc => {
+      const c = doc.data();
+      buildClientUI({
+        name: c.name, handle: c.handle,
+        initials: c.initials || (c.name||'C').replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase(),
+        color: c.color || '#9333EA', tb: c.tb || c.handle
+      });
+    });
+  }).catch(e => console.warn('Could not load team clients:', e));
+}
+
+function addClientDemo() {
+  const name = document.getElementById('new-client-name').value.trim();
+  const handle = document.getElementById('new-client-handle').value.trim();
+  if (!name || !handle) { alert('Please fill in client name and handle.'); return; }
+  const colors = ['#9333EA','#0891B2','#D97706','#DC2626'];
+  const col = colors[clients.length % colors.length];
+  const client = { name, handle, initials: name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(), color: col, tb: handle };
+  const idx = buildClientUI(client);
+  saveClientToCloud(client);
   closeModal();
   switchClient(idx, null);
-  alert('✅ '+name+' added! Connect their Instagram account to start pulling real data.');
+  alert('✅ '+name+' added and saved for your team. Connect their Instagram to pull real data.');
 }
 document.getElementById('add-modal').addEventListener('click', e => { if(e.target === document.getElementById('add-modal')) closeModal(); });
 
